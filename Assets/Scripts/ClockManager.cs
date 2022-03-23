@@ -12,16 +12,22 @@ public class ClockManager : MonoBehaviour
     public static ClockManager instance;
 
     const string API_URL = "https://www.timeapi.io/api/Time/current/zone?timeZone=Europe/Moscow";
-    const string API_URL2 = "http://worldclockapi.com/api/json/est/now";
+    const string API_URL2 = "http://worldtimeapi.org/api/timezone/Europe/Moscow";
 
     [HideInInspector]
     public bool isTimeLoaded = false;
+
+    public bool isUpdate = false;
 
     public TMP_Text textClock;
 
     public int hour;
     public int minute;
     public int second;
+
+    private int hour2;
+    private int minute2;
+    private int second2;
 
     [System.Serializable]
     public class MyDate
@@ -44,15 +50,21 @@ public class ClockManager : MonoBehaviour
     [System.Serializable]
     public class MyDateSecond
     {
-        public string id;
-        public string currentDateTime;
-        public string utcOffset;
-        public bool isDayLightSavingsTime;
-        public string dayOfTheWeek;
-        public string timeZoneName;
-        public long currentFileTime;
-        public string ordinalDate;
-        public object serviceResponse;
+        public string abbreviation;
+        public string client_ip;
+        public string datetime;
+        public int day_of_week;
+        public int day_of_year;
+        public bool dst;
+        public object dst_from;
+        public int dst_offset;
+        public object dst_until;
+        public int raw_offset;
+        public string timezone;
+        public int unixtime;
+        public string utc_datetime;
+        public string utc_offset;
+        public int week_number;
     }
 
 
@@ -72,18 +84,48 @@ public class ClockManager : MonoBehaviour
     void Start()
     {
         GetMyTime();
+          
     }
 
-
+    private void FixedUpdate()
+    {
+        textClock.text = hour.ToString("D2") + ":" + minute.ToString("D2") + ":" + second.ToString("D2");
+    }
 
     public void GetMyTime()
     {
         StartCoroutine(GetRealTime());
+        StartCoroutine(GetWorldTime());
+    }
+
+    private IEnumerator GetWorldTime()
+    {
+        using (UnityWebRequest myWebRequest = UnityWebRequest.Get(API_URL2))
+        {
+            yield return myWebRequest.SendWebRequest();
+
+            if (myWebRequest != null)
+            {
+                string json = myWebRequest.downloadHandler.text;
+                MyDateSecond myDateSecond = JsonUtility.FromJson<MyDateSecond>(json);
+
+                string timeStr = myDateSecond.datetime;
+
+                hour2 = int.Parse(myDateSecond.datetime.Substring(11,2));
+                minute2 = int.Parse(myDateSecond.datetime.Substring(14, 2));
+                second2 = int.Parse(myDateSecond.datetime.Substring(17, 2));
+
+            }
+            else
+            {
+                textClock.text = "Server not enabled";
+            }
+        }
+
     }
 
     private IEnumerator GetRealTime()
     {
-
         using (UnityWebRequest myWebRequest = UnityWebRequest.Get(API_URL))
         {
             yield return myWebRequest.SendWebRequest();
@@ -92,11 +134,7 @@ public class ClockManager : MonoBehaviour
             {
                 string json = myWebRequest.downloadHandler.text;
                 MyDate myDate = JsonUtility.FromJson<MyDate>(json);
-                //MyDateSecond mysecond = JsonUtility.FromJson<MyDateSecond>(json);
-                
-                Debug.Log(myDate.hour);
 
-                textClock.text = myDate.hour.ToString() + " : " + myDate.minute.ToString();
                 hour = myDate.hour;
                 minute = myDate.minute;
                 second = myDate.seconds;
@@ -106,7 +144,60 @@ public class ClockManager : MonoBehaviour
                 textClock.text = "Server not enabled";
             }
         }
+           
+        StartCoroutine(ClockTicking());
+        StartCoroutine(RequestTimer());
+    }
 
+    private IEnumerator RequestTimer()
+    {
+        yield return new WaitForSeconds(3600f);
+        StopAllCoroutines();
+        GetMyTime();
+        if(hour != hour2 || minute != minute2)
+        {
+            StopAllCoroutines();
+            textClock.text = "Time not Recognize";
+            GetMyTime();
+        }
+    }
+
+    private IEnumerator ClockTicking()
+    {
+        if (!isUpdate)
+        {
+            yield return new WaitForSeconds(1f);
+
+            if (isUpdate == false)
+            {
+
+                if (second < 59)
+                {
+                    second++;
+                }
+                else
+                {
+                    second = 0;
+                    if(minute < 59)
+                    {
+                        minute++;
+                    }
+                    else
+                    {
+                        minute = 0;
+                        if(hour < 24)
+                        {
+                            hour++;
+                        }
+                        else
+                        {
+                            hour = 0;
+                        }
+                    }
+                }
+            }
+            StartCoroutine(ClockTicking());
+        }
     }
 }
 

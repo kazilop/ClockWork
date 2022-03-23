@@ -26,7 +26,7 @@ public class ClockRing : MonoBehaviour
     public void SetArrow()
     {
         _hour.transform.rotation = Quaternion.Euler(0, 0, -30 * _clockManager.hour);
-        _minute.transform.rotation = Quaternion.Euler(0, 0, -30 * _clockManager.minute);
-        _second.transform.rotation = Quaternion.Euler(0, 0, -30 * _clockManager.second);
+        _minute.transform.rotation = Quaternion.Euler(0, 0, -6 * _clockManager.minute);
+        _second.transform.rotation = Quaternion.Euler(0, 0, -6 * _clockManager.second);
     }
 }
