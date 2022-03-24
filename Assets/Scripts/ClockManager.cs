@@ -10,6 +10,7 @@ public class ClockManager : MonoBehaviour
 {
 
     public static ClockManager instance;
+    public WakeUp wakeManager;
 
     const string API_URL = "https://www.timeapi.io/api/Time/current/zone?timeZone=Europe/Moscow";
     const string API_URL2 = "http://worldtimeapi.org/api/timezone/Europe/Moscow";
@@ -28,6 +29,11 @@ public class ClockManager : MonoBehaviour
     private int hour2;
     private int minute2;
     private int second2;
+
+    [SerializeField]
+    private int wakeupHour;
+    [SerializeField]
+    private int wakeupMinute;
 
     [System.Serializable]
     public class MyDate
@@ -90,6 +96,7 @@ public class ClockManager : MonoBehaviour
     private void FixedUpdate()
     {
         textClock.text = hour.ToString("D2") + ":" + minute.ToString("D2") + ":" + second.ToString("D2");
+        //IsTimeAlarm();
     }
 
     public void GetMyTime()
@@ -114,6 +121,11 @@ public class ClockManager : MonoBehaviour
                 hour2 = int.Parse(myDateSecond.datetime.Substring(11,2));
                 minute2 = int.Parse(myDateSecond.datetime.Substring(14, 2));
                 second2 = int.Parse(myDateSecond.datetime.Substring(17, 2));
+
+                if (myWebRequest.isDone)
+                {
+                    wakeManager.alarm = true;
+                }
 
             }
             else
@@ -199,7 +211,14 @@ public class ClockManager : MonoBehaviour
             StartCoroutine(ClockTicking());
         }
     }
-}
+
+    public void SetAlarm(int aHour, int aMinute)
+    {
+        wakeupHour = aHour;
+        wakeupMinute = aMinute;
+    }
+
+ }
 
 
 
