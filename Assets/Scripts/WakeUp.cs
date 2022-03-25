@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,13 +7,12 @@ public class WakeUp : MonoBehaviour
     public GameObject panel;
     public GameObject alarmPanel;
     public ClockManager manager;
-
+    public Image alarmImg;
 
     public int setHour;
     public int setMinute;
 
     public bool alarm = false;
-    private bool canAlarm = false;
 
     public TMP_InputField hour;
     public TMP_InputField minute;
@@ -25,25 +22,24 @@ public class WakeUp : MonoBehaviour
     {
         panel.SetActive(false);
         alarmPanel.SetActive(false);
-        
     }
 
     private void Update()
     {
         CheckForAlarm();
     }
+
     public void OpenPanel()
     {
         panel.SetActive(true);
         manager.isUpdate = true;
-        
     }
 
     public void SetWakeUp()
     {
+        alarm = true;
         setHour = int.Parse(hour.text);
         setMinute = int.Parse(minute.text);
- //       manager.SetAlarm(setHour, setMinute);
         panel.SetActive(false);
         manager.isUpdate = false;
         manager.GetMyTime();
@@ -52,6 +48,7 @@ public class WakeUp : MonoBehaviour
     public void CloseAlarmPanel()
     {
         alarmPanel.SetActive(false);
+        alarm = false;
     }
 
     public void AlarmPanel()
@@ -61,12 +58,19 @@ public class WakeUp : MonoBehaviour
 
     private void CheckForAlarm()
     {
+        if (alarm)
+        {
+            alarmImg.color = Color.red;
+        }
+        else
+        {
+            alarmImg.color = Color.white;
+        }
+
         if(manager.hour == setHour && manager.minute == setMinute && manager.second == 0 && alarm)
         {
-            canAlarm = true;
             AlarmPanel();
         }
     }
-
     
 }

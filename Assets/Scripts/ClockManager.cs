@@ -5,7 +5,6 @@ using System;
 using TMPro;
 
 
-
 public class ClockManager : MonoBehaviour
 {
 
@@ -90,13 +89,11 @@ public class ClockManager : MonoBehaviour
     void Start()
     {
         GetMyTime();
-          
     }
 
     private void FixedUpdate()
     {
         textClock.text = hour.ToString("D2") + ":" + minute.ToString("D2") + ":" + second.ToString("D2");
-        //IsTimeAlarm();
     }
 
     public void GetMyTime()
@@ -121,12 +118,6 @@ public class ClockManager : MonoBehaviour
                 hour2 = int.Parse(myDateSecond.datetime.Substring(11,2));
                 minute2 = int.Parse(myDateSecond.datetime.Substring(14, 2));
                 second2 = int.Parse(myDateSecond.datetime.Substring(17, 2));
-
-                if (myWebRequest.isDone)
-                {
-                    wakeManager.alarm = true;
-                }
-
             }
             else
             {
@@ -176,7 +167,7 @@ public class ClockManager : MonoBehaviour
 
     private IEnumerator ClockTicking()
     {
-        if (!isUpdate)
+        if (isUpdate != true)
         {
             yield return new WaitForSeconds(1f);
 
